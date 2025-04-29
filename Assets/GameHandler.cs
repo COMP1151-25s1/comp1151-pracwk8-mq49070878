@@ -1,0 +1,63 @@
+using System.Collections;
+using UnityEngine;
+using TMPro;
+using System.Collections.Generic;
+using System.Collections;
+using Unity.VisualScripting;
+
+public class GameHandler : MonoBehaviour
+{
+    public static GameHandler Instance;
+
+    private void Awake()
+    {
+        // singleton setup
+        if (Instance == null) Instance = this;
+        else Destroy(this.gameObject);
+    }
+
+    public static int credits;
+    private float creditsTextLerp;
+    public int startingCredits = 500;
+    public TMP_Text creditsText;
+
+
+    private static Coroutine timescaleCoroutine;
+    
+    
+    private void Start()
+    {
+        credits = startingCredits;
+    }
+
+    private void Update()
+    {
+        creditsTextLerp = Mathf.Lerp(creditsTextLerp, credits, Time.deltaTime * 2.5f);
+        creditsText.text = Mathf.RoundToInt(creditsTextLerp).ToString();
+    }
+
+    public static void SetTimeOverDuration(float timeScale, float duration)
+    {
+        if (timescaleCoroutine != null) Instance.StopCoroutine(timescaleCoroutine);
+        timescaleCoroutine = Instance.StartCoroutine(Instance.I_SetTimeOverDuration(timeScale, duration));
+    }
+
+    public IEnumerator I_SetTimeOverDuration(float timeScale, float duration)
+    {
+        float timePassed = 0.0f;
+        float cachedTimeScale = Time.timeScale;
+        
+        yield return null;
+
+        while (timePassed < duration)
+        {
+            timePassed += Time.unscaledDeltaTime;
+            yield return null;
+            
+            Time.timeScale = Mathf.Lerp(timeScale, cachedTimeScale, timePassed / duration);
+        }
+
+        yield return null;
+    }
+    
+}
